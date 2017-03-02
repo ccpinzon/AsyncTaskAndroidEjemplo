@@ -16,12 +16,18 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import cristhianpinzon.com.webserviceejemplo.POJO.Usuario;
+import cristhianpinzon.com.webserviceejemplo.Parsers.UsuarioJSONParser;
+import cristhianpinzon.com.webserviceejemplo.Parsers.UsuarioXMLParser;
+
 public class MainActivity extends AppCompatActivity {
 
     private Button boton;
     private TextView textView;
     private ProgressBar progressBar;
-    List<MyTask> tasksList;
+    //List<MyTask> tasksList;
+
+    List<Usuario> usuarioList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +45,15 @@ public class MainActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
-        tasksList = new ArrayList<>();
+        //tasksList = new ArrayList<>();
 
         boton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if (isOnline()){
-                    pedirDatos();
+                   // pedirDatos("http://192.168.0.23/ejemploWebService/usuarios.xml");
+                    pedirDatos("http://maloschistes.com/maloschistes.com/jose/webservice.php");
                 }else {
                     Toast.makeText(getApplicationContext(),"SIN CONEXION ",Toast.LENGTH_SHORT).show();
                 }
@@ -56,20 +63,30 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void cargarDatos(String datos) {
+    public void cargarDatos() {
 
-        textView.append(datos + "\n");
+
+        //aca estan los datos :D
+        //textView.append(datos + "\n");
+
+        if (!usuarioList.isEmpty()){
+            for (Usuario usuario: usuarioList ) {
+                textView.append(usuario.getTwitter() + "\n");
+            }
+
+        }
 
     }
 
-    public void pedirDatos(){
+    public void pedirDatos(String uri){
 
         MyTask task = new MyTask();
-        // Forma Paralela
-        //task.execute();
 
         //Forma seriada
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        task.execute(uri);
+
+        // Forma Paralela
+        //task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 
     }
 
@@ -96,44 +113,48 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            cargarDatos("Iniciar de Cargar");
+            //cargarDatos("Iniciar de Cargar");
             progressBar.setVisibility(View.VISIBLE);
 
             // agregar task a  la lista
-            tasksList.add(this);
+            //tasksList.add(this);
         }
 
         @Override
-        protected String doInBackground(String... strings) {
+        protected String doInBackground(String... params) {
 
-              for (int i = 0;i<=10;i++){
-                    //cargarDatos("Numero : " + i);
-                  publishProgress("Numero : " + i);
-                  try {
-                      Thread.sleep(100);
-                  } catch (InterruptedException e) {
-                      e.printStackTrace();
-                  }
-               }
-            return "Terminamos";
+//              for (int i = 0;i<=10;i++){
+//                    //cargarDatos("Numero : " + i);
+//                  publishProgress("Numero : " + i);
+//                  try {
+//                      Thread.sleep(100);
+//                  } catch (InterruptedException e) {
+//                      e.printStackTrace();
+//                  }
+//               }
+
+            String data = HttpManager.getData(params[0]);
+            return data;
         }
 
         @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            cargarDatos(s);
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            //usuarioList = UsuarioXMLParser.parser(result);
+            usuarioList = UsuarioJSONParser.parser(result);
+            cargarDatos();
 
-            tasksList.remove(this);
-
-            if (tasksList.isEmpty())
-                progressBar.setVisibility(View.INVISIBLE);
+//            tasksList.remove(this);
+//
+//            if (tasksList.isEmpty())
+//                progressBar.setVisibility(View.INVISIBLE);
 
 
         }
 
         @Override
         protected void onProgressUpdate(String... values) {
-            cargarDatos(values[0]);
+           // cargarDatos(values[0]);
         }
     }
 }

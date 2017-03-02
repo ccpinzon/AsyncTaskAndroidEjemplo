@@ -12,6 +12,11 @@
     android:gravity="center_horizontal"
     tools:context="cristhianpinzon.com.webserviceejemplo.MainActivity">
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,4 +29,5 @@
         android:layout_height="wrap_content"
         android:text=" "
         android:scrollbars="vertical"/>
+
 </LinearLayout>
